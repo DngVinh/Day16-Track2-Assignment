@@ -1,0 +1,9 @@
+Project: data-eye-510409-j5
+Checked: 2026-10-02
+
+gcloud billing projects describe data-eye-510409-j5
+
+billingEnabled: true
+billingAccountName: billingAccounts/013A90-CCBF09-D0C694
+
+Interpretation: the project is linked to a billing account and resources are billable. The Google Cloud Billing Reports page still showed no results / 0 VND at capture time, which can occur while usage data is being processed or while free-trial credits offset the current usage. Re-capture the Billing Reports screenshot after the data appears.

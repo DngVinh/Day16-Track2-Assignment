@@ -1,9 +1,12 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
+exec > >(tee /var/log/user-data.log | logger -t startup-script -s 2>/dev/console) 2>&1
+export DEBIAN_FRONTEND=noninteractive
 
 # Install Docker
 apt-get update -y
-apt-get install -y docker.io
+apt-get install -y --no-install-recommends ca-certificates curl gnupg docker.io
 systemctl enable docker
 systemctl start docker
 
@@ -22,11 +25,14 @@ systemctl restart docker
 
 # Run vLLM with the Gemma model
 docker run -d \
+  --name vllm \
   --gpus all \
   --restart unless-stopped \
   -p 8000:8000 \
+  --ipc=host \
   -e HUGGING_FACE_HUB_TOKEN="${hf_token}" \
   vllm/vllm-openai:latest \
   --model "${model_id}" \
   --dtype half \
-  --max-model-len 4096
+  --max-model-len 4096 \
+  --host 0.0.0.0

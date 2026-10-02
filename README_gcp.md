@@ -24,13 +24,25 @@ Trên GCP, mọi tài nguyên đều thuộc về một **Project**. Bạn cần
 ### Bước 1.2: Kích hoạt các API cần thiết
 Để Terraform có thể tạo tài nguyên (máy ảo, network), bạn cần bật các API tương ứng trên Project. Mở **Cloud Shell** (biểu tượng `>_` trên góc phải) và chạy lệnh:
 ```bash
-gcloud services enable compute.googleapis.com iam.googleapis.com
+gcloud services enable \
+  compute.googleapis.com \
+  iam.googleapis.com \
+  iap.googleapis.com \
+  oslogin.googleapis.com \
+  logging.googleapis.com \
+  monitoring.googleapis.com
 ```
 
 ### Bước 1.3: Cấp quyền IAM (Least Privilege)
-Nếu bạn tự làm lab trên máy cá nhân bằng tài khoản Google của mình (tài khoản đã tạo Project), bạn mặc định có quyền Owner và đã đủ quyền. Tuy nhiên, theo best practice (hoặc nếu phân quyền cho một user/Service Account khác để Terraform chạy), bạn cần vào **IAM & Admin** -> **IAM** và cấp các Roles sau:
-- `Compute Admin` (`roles/compute.admin`): Để tạo Compute Engine (VM, Load Balancer, VPC, Firewall, Cloud NAT).
-- `Service Account User` (`roles/iam.serviceAccountUser`): Để gán Service Account cho máy ảo Compute Engine.
+Nếu bạn tự làm lab trên máy cá nhân bằng tài khoản Google của mình (tài khoản đã tạo Project), bạn mặc định có quyền Owner và đã đủ quyền. Tuy nhiên, theo best practice, không nên coi Owner là cấu hình least-privilege. Nếu Terraform chạy bằng một user hoặc Service Account riêng, cần cấp đúng các quyền sau:
+- `Compute Admin` (`roles/compute.admin`): tạo Compute Engine, Load Balancer, VPC, Firewall và Cloud NAT.
+- `Service Account Admin` (`roles/iam.serviceAccountAdmin`) hoặc quyền tạo Service Account tương đương: Terraform tạo `gpu-node-sa`.
+- `Project IAM Admin` (`roles/resourcemanager.projectIamAdmin`): Terraform tạo hai `google_project_iam_member` cho logging/monitoring.
+- `Service Account User` (`roles/iam.serviceAccountUser`): gán `gpu-node-sa` cho VM; cấp ở project hoặc trực tiếp trên Service Account.
+- `IAP-secured Tunnel User` (`roles/iap.tunnelResourceAccessor`): cho tài khoản người dùng SSH qua IAP.
+- `Compute OS Login` (`roles/compute.osLogin`), hoặc `Compute OS Admin Login` (`roles/compute.osAdminLogin`) nếu cần sudo: đăng nhập vào VM vì Terraform bật OS Login.
+
+Các quyền IAP/OS Login ở trên áp dụng cho **tài khoản người SSH**, còn các quyền tạo resource/IAM áp dụng cho **tài khoản chạy Terraform**. Nếu dùng Service Account để chạy Terraform, không nên cấp các quyền đăng nhập VM cho Service Account đó trừ khi thật sự cần. `Project IAM Admin` và `Service Account Admin` là quyền bootstrap tương đối rộng; môi trường production nên thay bằng custom role chỉ chứa các permission cần thiết, hoặc cấp sẵn Service Account/logging/monitoring bindings rồi bỏ phần IAM tương ứng khỏi module.
 
 > **Về GPU Quota:** Luồng chính của bài lab này **không cần** xin tăng quota GPU. Nếu bạn muốn làm thêm Phụ lục (tùy chọn) ở cuối bài để triển khai LLM trên GPU, quy trình xin quota được hướng dẫn riêng ở đó.
 
@@ -160,6 +172,8 @@ Chạy script và điền kết quả vào bảng:
 | Recall | |
 | Inference latency (1 row) | |
 | Inference throughput (1000 rows) | |
+
+Mặc định benchmark chạy đủ số estimator đã cấu hình để giữ kết quả ổn định giữa các lần chạy; khi đó `best_iteration` chính là iteration limit và `best_iteration_is_tuned` sẽ là `false`. Nếu muốn chọn iteration bằng validation/early stopping, chạy thêm `--early-stopping-rounds 30`; khi đó script sẽ tách validation từ train và ghi best iteration thực tế.
 
 ---
 

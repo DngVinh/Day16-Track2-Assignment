@@ -19,6 +19,6 @@ output "gpu_node_zone" {
 }
 
 output "iap_ssh_command" {
-  description = "Command to SSH into the GPU node via IAP"
-  value       = "gcloud compute ssh ${google_compute_instance.gpu_node.name} --zone=${google_compute_instance.gpu_node.zone} --tunnel-through-iap"
+  description = "Command to SSH into the compute node via IAP"
+  value       = "gcloud compute ssh ${google_compute_instance.gpu_node.name} --project=${var.project_id} --zone=${google_compute_instance.gpu_node.zone} --tunnel-through-iap"
 }

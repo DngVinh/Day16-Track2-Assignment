@@ -1,0 +1,25 @@
+Command: python3 benchmark.py
+VM: ai-gpu-node (e2-medium, us-central1-a)
+Captured: 2026-10-02
+
+generated_at_utc 2026-10-02T10:53:01.213636+00:00
+rows 284807
+features 30
+fraud_rows 492
+train_rows 227845
+test_rows 56962
+load_time_seconds 2.7578118729990096
+training_time_seconds 7.5247289299000048
+best_iteration 200
+auc_roc 0.9154315021591077
+accuracy 0.9837259927671079
+f1_score 0.15496809480401094
+precision 0.08508508508508508
+recall 0.8673469387755102
+inference_latency_1_row_ms 1.2752940001519164
+inference_latency_1_row_mean_ms 1.2996523599940701
+inference_throughput_1000_rows_per_second 113354.58945213226
+
+Interpretation: this capture used the fixed-estimator default (early stopping disabled); best_iteration=200 is the configured iteration limit, and is not validation-tuned.
+
+Full structured output is stored in ../benchmark_result.json.

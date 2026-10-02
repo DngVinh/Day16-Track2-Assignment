@@ -1,0 +1,28 @@
+Project: data-eye-510409-j5
+VM: ai-gpu-node
+Zone: us-central1-a
+Status: RUNNING
+Machine type: e2-medium
+Private IP: 10.0.0.2
+Captured: 2026-10-02 10:13 (source capture time; timezone not recorded)
+
+--- free -h ---
+              total        used        free      shared  buff/cache   available
+Mem:           3.8Gi       461Mi       2.8Gi       452Ki       860Mi       3.4Gi
+Swap:             0B          0B          0B
+
+--- ip -s link show ens4 ---
+RX bytes: 257689369
+RX packets: 16539
+RX errors/dropped: 0/0
+TX bytes: 1042008
+TX packets: 10358
+TX errors/dropped: 0/0
+
+--- top -b -n 1 ---
+Load average: 0.00, 0.00, 0.00
+CPU: 0.0% user, 50.0% system, 50.0% idle
+Memory: 3924.7 MiB total, 461.2 MiB used, 3463.5 MiB available
+Swap: 0.0 MiB used
+
+The Load Balancer backend is expected to be unhealthy for the CPU-only path because no HTTP service is listening on port 8000.

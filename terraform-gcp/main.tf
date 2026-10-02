@@ -65,8 +65,9 @@ resource "google_compute_firewall" "allow_lb_healthcheck" {
   target_tags   = ["gpu-node"]
 }
 
-# 7. Service Account for GPU Node (least privilege)
+# 7. Service Account for the compute node (least privilege)
 resource "google_service_account" "gpu_node_sa" {
+  project      = var.project_id
   account_id   = "gpu-node-sa"
   display_name = "GPU Node Service Account"
 }
@@ -122,7 +123,11 @@ resource "google_compute_instance" "gpu_node" {
 
   service_account {
     email  = google_service_account.gpu_node_sa.email
-    scopes = ["cloud-platform"]
+    # Keep OAuth scopes aligned with the only project roles granted above.
+    scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+    ]
   }
 
   metadata_startup_script = var.gpu_count > 0 ? templatefile("${path.module}/user_data_gpu.sh", {
